@@ -2,9 +2,10 @@
 require('dotenv').load();
 
 const emberAddons = require('./lib/ember-addons');
-const createRssGenerator = require('./lib/rss');
-const createS3FileUploader = require('./lib/s3');
-const createDatabase = require('./lib/db');
+// const createRssGenerator = require('./lib/rss');
+// const createS3FileUploader = require('./lib/s3');
+// const createDatabase = require('./lib/db');
+const fs = require('fs');
 
 function createTimer() {
   const startTime = new Date().getTime();
@@ -18,7 +19,7 @@ function createTimer() {
 const printTotalTime = createTimer();
 
 // Init...
-const db = createDatabase({
+/*const db = createDatabase({
   databaseURL: process.env.DATABASE_URL
 });
 
@@ -35,12 +36,12 @@ const s3FileUploader = createS3FileUploader({
   key: process.env.AWS_ACCESS_KEY,
   secret: process.env.AWS_SECRET_KEY,
   bucket: process.env.AWS_BUCKET_NAME
-});
+});*/
 
 // Check if we need an update
 async function run() {
   try {
-    const lastCount = await db.getLatestTotalMetric();
+    const lastCount = 0;//await db.getLatestTotalMetric();
     const allAddons = await emberAddons.getAll();
     if (lastCount === allAddons.length) {
       console.log(
@@ -66,7 +67,9 @@ async function run() {
     const addons = await emberAddons.getDetails(allAddons);
     console.log('--> Done fetching data.');
 
-    console.log('--> Creating Feed...');
+    fs.writeFileSync('addons.json', JSON.stringify(addons));
+
+    /*console.log('--> Creating Feed...');
     const rssFeed = rssGenerator(addons);
 
     const uploadAddons = s3FileUploader({
@@ -94,7 +97,7 @@ async function run() {
     await db.updateTotalMetric(addons.length);
 
     console.log('--> Done updating %s addons.', addons.length);
-    db.close();
+    db.close();*/
     printTotalTime();
     process.exit(0);
   } catch (error) {

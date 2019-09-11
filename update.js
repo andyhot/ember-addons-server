@@ -18,6 +18,13 @@ function createTimer() {
 
 const printTotalTime = createTimer();
 
+const now = new Date().getTime();
+function keepLastDays(item) {
+	let diff = now - new Date(item.date).getTime();
+	diff = diff / 1000 / 60 / 60 / 24;
+
+	return diff <= 60;
+}
 // Init...
 /*const db = createDatabase({
   databaseURL: process.env.DATABASE_URL
@@ -42,7 +49,7 @@ const s3FileUploader = createS3FileUploader({
 async function run() {
   try {
     const lastCount = 0;//await db.getLatestTotalMetric();
-    const allAddons = await emberAddons.getAll();
+    let allAddons = await emberAddons.getAll();
     if (lastCount === allAddons.length) {
       console.log(
         '--> Needs update: NO --',
@@ -62,6 +69,10 @@ async function run() {
         allAddons.length
       );
     }
+
+	allAddons = allAddons.filter(keepLastDays);
+    console.log('--> New ones --',
+		allAddons.length);
 
     console.log('--> Fetching data from npm registry...');
     const addons = await emberAddons.getDetails(allAddons);
